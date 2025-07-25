@@ -1,0 +1,38 @@
+// === AYRS Android AI Assistant === // Project Name: AYRS // Developed for: Ayush Pal // Files: MainActivity.java, JarvisService.java, AndroidManifest.xml, activity_main.xml
+
+// -------------------- // FILE: MainActivity.java // -------------------- package com.ayush.ayrs;
+
+import android.content.Intent; import android.os.Bundle; import android.widget.Button; import androidx.appcompat.app.AppCompatActivity;
+
+public class MainActivity extends AppCompatActivity { @Override protected void onCreate(Bundle savedInstanceState) { super.onCreate(savedInstanceState); setContentView(R.layout.activity_main);
+
+Button startBtn = findViewById(R.id.btnStart);
+    startBtn.setOnClickListener(v -> startService(new Intent(this, JarvisService.class)));
+}
+
+}
+
+// -------------------------- // FILE: JarvisService.java // -------------------------- package com.ayush.ayrs;
+
+import android.app.Service; import android.content.Intent; import android.os.IBinder; import android.speech.RecognizerIntent; import android.speech.SpeechRecognizer; import android.widget.Toast; import androidx.annotation.Nullable;
+
+import java.util.ArrayList;
+
+public class JarvisService extends Service {
+
+private SpeechRecognizer speechRecognizer;
+
+@Override
+public int onStartCommand(Intent intent, int flags, int startId) {
+    speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+    Intent speechIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+    speechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+
+    speechRecognizer.setRecognitionListener(new SimpleRecognitionListener() {
+        @Override
+        public void onResults(Bundle results) {
+            ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+            if (matches != null && !matches.isEmpty()) {
+                String command = matches.get(0).toLowerCase();
+                if (command.contains("time")) {
+                    Toast.makeText(getApplicationContext(), "It's " + java.time
